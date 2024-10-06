@@ -1,5 +1,6 @@
-import React, { useEffect, useState, useReducer } from 'react'
+import React, { useEffect, useState, useReducer, useContext } from 'react'
 import axios from 'axios'
+import { ThemeContext } from './Context/ThemeContext';
 
 const initialState = {
     weather : null,
@@ -28,7 +29,7 @@ function Weather(){
     // const [error, setError] = useState(null);
 
     const [state, dispatch] = useReducer(reducer, initialState);
-
+    const {theme, setTheme} = useContext(ThemeContext);
 
 
     useEffect(() => {
@@ -67,8 +68,17 @@ function Weather(){
 
     };
 
+    const themeStyle = (theme) => {
+        return {
+            backgroundColor: theme === 'Light' ? '#fff' : '#333',
+            color: theme === 'Light' ? '#000' : '#fff',
+            padding: '20px',
+            textAlign: 'center',
+          };
+    }
+
     return (
-        <div>
+        <div style={themeStyle(theme)}>
             <h1>Weather-App</h1>
             <input className='input' type = 'text' value={state.city} onChange={handleCityChange} placeholder='Enter City Name'/>
             {state.loading && <p>Loading..</p>}
@@ -80,6 +90,7 @@ function Weather(){
                 <h3>Temperature : {state.weather.current.temp_c}°C</h3>
             </div>
         )}
+        <button onClick={() => theme === 'Light' ? setTheme('Dark') : setTheme('Light')}>{theme === 'Light' ? 'Dark' : 'Light'} Mode</button>
         </div>
     );
 
