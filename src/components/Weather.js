@@ -1,4 +1,4 @@
-import React, { useEffect, useState, useReducer, useContext } from 'react'
+import React, { useEffect, useState, useReducer, useContext, useMemo, useCallback } from 'react'
 import axios from 'axios'
 import { ThemeContext } from './Context/ThemeContext';
 
@@ -62,11 +62,22 @@ function Weather(){
         fetchWeather();
     }, [state.city]);
 
-    const handleCityChange = (e) => {
+    const handleCityChange = useCallback((e) => {
         //setCity(e.target.value);
         dispatch({type : 'City', payload : e.target.value});
 
-    };
+    }, [state.city]);
+
+    const calculatedWeather = useMemo(() => {
+            if (!state.weather) return null;
+
+            const {location, current} = state.weather;
+            return {
+                locationName : location.name,
+                currentCondition : current.condition.text,
+                currentTemp : current.temp_c
+            }
+    }, [state.weather]);
 
     const themeStyle = (theme) => {
         return {
@@ -85,9 +96,9 @@ function Weather(){
             {state.error && !state.weather && <p>Error Fetching Data</p>}
             {state.weather && (
             <div>
-                <h2>City : {state.weather.location.name}</h2>
-                <h3>Condition : {state.weather.current.condition.text}</h3>
-                <h3>Temperature : {state.weather.current.temp_c}°C</h3>
+                <h2>City : {calculatedWeather.locationName}</h2>
+                <h3>Condition : {calculatedWeather.currentCondition}</h3>
+                <h3>Temperature : {calculatedWeather.currentTemp}°C</h3>
             </div>
         )}
         <button onClick={() => theme === 'Light' ? setTheme('Dark') : setTheme('Light')}>{theme === 'Light' ? 'Dark' : 'Light'} Mode</button>
